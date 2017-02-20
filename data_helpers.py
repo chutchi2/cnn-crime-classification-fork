@@ -120,6 +120,8 @@ def load_embedding_vectors_word2vec(vocabulary, filename, binary):
                 idx = vocabulary.get(word)
                 if idx != 0:
                     embedding_vectors[idx] = np.fromstring(f.read(binary_len), dtype='float32')
+                else:
+                    f.seek(binary_len, 1)
         else:
             for line_no in range(vocab_size):
                 line = f.readline()
