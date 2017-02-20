@@ -8,17 +8,22 @@ import datetime
 import data_helpers
 from text_cnn import TextCNN
 from tensorflow.contrib import learn
+import yaml
+
+with open("config.yml", 'r') as ymlfile:
+    cfg = yaml.load(ymlfile)
+
+embedding_name = cfg['word_embeddings']['default']
+embedding_dimension = cfg['word_embeddings'][embedding_name]['dimension']
+dataset_name = cfg["datasets"]["default"]
 
 # Parameters
 # ==================================================
 
 # Data loading params
 tf.flags.DEFINE_float("dev_sample_percentage", .1, "Percentage of the training data to use for validation")
-tf.flags.DEFINE_string("positive_data_file", "./data/rt-polaritydata/rt-polarity.pos", "Data source for the positive data.")
-tf.flags.DEFINE_string("negative_data_file", "./data/rt-polaritydata/rt-polarity.neg", "Data source for the negative data.")
 
 # Model Hyperparameters
-tf.flags.DEFINE_integer("embedding_dim", 128, "Dimensionality of character embedding (default: 128)")
 tf.flags.DEFINE_string("filter_sizes", "3,4,5", "Comma-separated filter sizes (default: '3,4,5')")
 tf.flags.DEFINE_integer("num_filters", 128, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (default: 0.5)")
@@ -47,7 +52,16 @@ print("")
 
 # Load data
 print("Loading data...")
-x_text, y = data_helpers.load_data_and_labels(FLAGS.positive_data_file, FLAGS.negative_data_file)
+datasets = None
+if dataset_name == "mrpolarity":
+    datasets = data_helpers.get_datasets_mrpolarity(cfg["datasets"][dataset_name]["positive_data_file"]["path"],
+                                                    cfg["datasets"][dataset_name]["negative_data_file"]["path"])
+elif dataset_name == "20newsgroup":
+    datasets = data_helpers.get_datasets_20newsgroup(subset="train",
+                                                     categories=cfg["datasets"][dataset_name]["categories"],
+                                                     shuffle=cfg["datasets"][dataset_name]["shuffle"],
+                                                     random_state=cfg["datasets"][dataset_name]["random_state"])
+x_text, y = data_helpers.load_data_labels(datasets)
 
 # Build vocabulary
 max_document_length = max([len(x.split(" ")) for x in x_text])
@@ -82,7 +96,7 @@ with tf.Graph().as_default():
             sequence_length=x_train.shape[1],
             num_classes=y_train.shape[1],
             vocab_size=len(vocab_processor.vocabulary_),
-            embedding_size=FLAGS.embedding_dim,
+            embedding_size=embedding_dimension,
             filter_sizes=list(map(int, FLAGS.filter_sizes.split(","))),
             num_filters=FLAGS.num_filters,
             l2_reg_lambda=FLAGS.l2_reg_lambda)
@@ -134,6 +148,23 @@ with tf.Graph().as_default():
 
         # Initialize all variables
         sess.run(tf.global_variables_initializer())
+        vocabulary = vocab_processor.vocabulary_
+        initW = None
+        if embedding_name == 'word2vec':
+            # load embedding vectors from the word2vec
+            print("Load word2vec file {}".format(cfg['word_embeddings']['word2vec']['path']))
+            initW = data_helpers.load_embedding_vectors_word2vec(vocabulary,
+                                                                 cfg['word_embeddings']['word2vec']['path'],
+                                                                 cfg['word_embeddings']['word2vec']['binary'])
+            print("word2vec file has been loaded")
+        elif embedding_name == 'glove':
+            # load embedding vectors from the glove
+            print("Load glove file {}".format(cfg['word_embeddings']['glove']['path']))
+            initW = data_helpers.load_embedding_vectors_glove(vocabulary,
+                                                              cfg['word_embeddings']['glove']['path'],
+                                                              embedding_dimension)
+            print("glove file has been loaded\n")
+        sess.run(cnn.W.assign(initW))
 
         def train_step(x_batch, y_batch):
             """

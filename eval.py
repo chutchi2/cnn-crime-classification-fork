@@ -9,13 +9,16 @@ import data_helpers
 from text_cnn import TextCNN
 from tensorflow.contrib import learn
 import csv
+from sklearn import metrics
+import yaml
+
+with open("config.yml", 'r') as ymlfile:
+    cfg = yaml.load(ymlfile)
 
 # Parameters
 # ==================================================
 
 # Data Parameters
-tf.flags.DEFINE_string("positive_data_file", "./data/rt-polaritydata/rt-polarity.pos", "Data source for the positive data.")
-tf.flags.DEFINE_string("negative_data_file", "./data/rt-polaritydata/rt-polarity.neg", "Data source for the positive data.")
 
 # Eval Parameters
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
@@ -34,13 +37,28 @@ for attr, value in sorted(FLAGS.__flags.items()):
     print("{}={}".format(attr.upper(), value))
 print("")
 
+datasets = None
+
 # CHANGE THIS: Load data. Load your own data here
+dataset_name = cfg["datasets"]["default"]
 if FLAGS.eval_train:
-    x_raw, y_test = data_helpers.load_data_and_labels(FLAGS.positive_data_file, FLAGS.negative_data_file)
+    if dataset_name == "mrpolarity":
+        datasets = data_helpers.get_datasets_mrpolarity(cfg["datasets"][dataset_name]["positive_data_file"]["path"],
+                                             cfg["datasets"][dataset_name]["negative_data_file"]["path"])
+    elif dataset_name == "20newsgroup":
+        datasets = data_helpers.get_datasets_20newsgroup(subset="test",
+                                              categories=cfg["datasets"][dataset_name]["categories"],
+                                              shuffle=cfg["datasets"][dataset_name]["shuffle"],
+                                              random_state=cfg["datasets"][dataset_name]["random_state"])
+    x_raw, y_test = data_helpers.load_data_labels(datasets)
     y_test = np.argmax(y_test, axis=1)
+    print("Total number of test examples: {}".format(len(y_test)))
 else:
-    x_raw = ["a masterpiece four years in the making", "everything is off."]
-    y_test = [1, 0]
+    x_raw = ["The number of reported cases of gonorrhea in Colorado increased",
+             "I am in the market for a 24-bit graphics card for a PC"]
+    y_test = [2, 1]
+    # x_raw = ["a masterpiece four years in the making", "everything is off."]
+    # y_test = [1, 0]
 
 # Map data into vocabulary
 vocab_path = os.path.join(FLAGS.checkpoint_dir, "..", "vocab")
@@ -86,6 +104,8 @@ if y_test is not None:
     correct_predictions = float(sum(all_predictions == y_test))
     print("Total number of test examples: {}".format(len(y_test)))
     print("Accuracy: {:g}".format(correct_predictions/float(len(y_test))))
+    print(metrics.classification_report(y_test, all_predictions, target_names=datasets.target_names))
+    print(metrics.confusion_matrix(y_test, all_predictions))
 
 # Save the evaluation to a csv
 predictions_human_readable = np.column_stack((np.array(x_raw), all_predictions))

@@ -1,0 +1,36 @@
+word_embeddings:
+  default: glove
+  word2vec:
+    path: ../../data/GoogleNews-vectors-negative300.bin
+    dimension: 300
+    bynary: True
+  glove:
+    path: ../../data/glove.6B.100d.txt
+    dimension: 100
+    length: 400000
+
+datasets:
+  default: 20newsgroup
+  mrpolarity:
+    positive_data_file:
+      path: "data/rt-polaritydata/rt-polarity.pos"
+      info: "Data source for the positive data"
+    negative_data_file:
+      path: "data/rt-polaritydata/rt-polarity.neg"
+      info: "Data source for the negative data"
+  20newsgroup:
+    # The dataset includes following newsgroup: 
+    # alt.atheism, comp.windows.x, rec.sport.hockey, soc.religion.christian
+    # comp.graphics, misc.forsale, sci.crypt, talk.politics.guns
+    # comp.os.ms-windows.misc, rec.autos, sci.electronics, talk.politics.mideast
+    # comp.sys.ibm.pc.hardware, rec.motorcycles, sci.med, talk.politics.misc
+    # comp.sys.mac.hardware, rec.sport.baseball, sci.space, talk.religion.misc
+    categories:
+      - alt.atheism
+      - comp.graphics
+      - sci.med
+      - soc.religion.christian
+    shuffle: True
+    random_state: 42
+
+
