@@ -1,4 +1,6 @@
 word_embeddings:
+  # Two types of word embedding algorithm (word2vec and glove) are supported.
+  # Just set the default to empty string to disable the word embeddings
   default: word2vec
   word2vec:
     path: ../../data/GoogleNews-vectors-negative300.bin
@@ -10,6 +12,7 @@ word_embeddings:
     length: 400000
 
 datasets:
+  # Support currently 2 datasets: mrpolarity and 20newsgroup
   default: 20newsgroup
   mrpolarity:
     positive_data_file:
@@ -19,7 +22,7 @@ datasets:
       path: "data/rt-polaritydata/rt-polarity.neg"
       info: "Data source for the negative data"
   20newsgroup:
-    # The dataset includes following newsgroup: 
+    # The dataset includes following 20 newsgroups:
     # alt.atheism, comp.windows.x, rec.sport.hockey, soc.religion.christian
     # comp.graphics, misc.forsale, sci.crypt, talk.politics.guns
     # comp.os.ms-windows.misc, rec.autos, sci.electronics, talk.politics.mideast

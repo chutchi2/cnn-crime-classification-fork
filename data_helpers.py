@@ -2,10 +2,6 @@ import numpy as np
 import re
 from sklearn.datasets import fetch_20newsgroups
 
-subset="train"
-categories=['alt.atheism', 'comp.graphics', 'sci.med', 'soc.religion.christian']
-shuffle=True
-random_state=42
 
 def clean_str(string):
     """
@@ -48,10 +44,13 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
             yield shuffled_data[start_index:end_index]
 
 
-def get_datasets_20newsgroup(subset=subset, categories=categories, shuffle=shuffle, random_state=random_state):
+def get_datasets_20newsgroup(subset='train', categories=None, shuffle=True, random_state=42):
     """
     Retrieve data from 20 newsgroups
+    :param subset: train, test or all
     :param categories: List of newsgroup name
+    :param shuffle: shuffle the list or not
+    :param random_state: seed integer to shuffle the dataset
     :return: data and labels of the newsgroup
     """
     datasets = fetch_20newsgroups(subset=subset, categories=categories, shuffle=shuffle, random_state=random_state)

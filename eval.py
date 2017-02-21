@@ -54,11 +54,13 @@ if FLAGS.eval_train:
     y_test = np.argmax(y_test, axis=1)
     print("Total number of test examples: {}".format(len(y_test)))
 else:
-    x_raw = ["The number of reported cases of gonorrhea in Colorado increased",
-             "I am in the market for a 24-bit graphics card for a PC"]
-    y_test = [2, 1]
-    # x_raw = ["a masterpiece four years in the making", "everything is off."]
-    # y_test = [1, 0]
+    if dataset_name == "mrpolarity":
+        x_raw = ["a masterpiece four years in the making", "everything is off."]
+        y_test = [1, 0]
+    else:
+        x_raw = ["The number of reported cases of gonorrhea in Colorado increased",
+                 "I am in the market for a 24-bit graphics card for a PC"]
+        y_test = [2, 1]
 
 # Map data into vocabulary
 vocab_path = os.path.join(FLAGS.checkpoint_dir, "..", "vocab")
@@ -104,7 +106,7 @@ if y_test is not None:
     correct_predictions = float(sum(all_predictions == y_test))
     print("Total number of test examples: {}".format(len(y_test)))
     print("Accuracy: {:g}".format(correct_predictions/float(len(y_test))))
-    print(metrics.classification_report(y_test, all_predictions, target_names=datasets.target_names))
+    print(metrics.classification_report(y_test, all_predictions, target_names=datasets['target_names']))
     print(metrics.confusion_matrix(y_test, all_predictions))
 
 # Save the evaluation to a csv
