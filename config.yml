@@ -12,7 +12,7 @@ word_embeddings:
     length: 400000
 
 datasets:
-  # Support currently 2 datasets: mrpolarity and 20newsgroup
+  # Support currently 3 datasets: mrpolarity, 20newsgroup and localdata
   default: 20newsgroup
   mrpolarity:
     positive_data_file:
@@ -35,5 +35,22 @@ datasets:
       - soc.religion.christian
     shuffle: True
     random_state: 42
-
+  localdata:
+    # Load text files with categories as subfolder names
+    # Individual samples are assumed to be files stored
+    # a two levels folder structure such as the following:
+    # container_folder/
+    #   category_1_folder/
+    #     file_1.txt file_2.txt ... file_42.txt
+    #   category_2_folder/
+    #     file_43.txt file_44.txt ...
+    #
+    # As an example, a SentenceCorpus dataset from
+    # https://archive.ics.uci.edu/ml/datasets/Sentence+Classification
+    # has been used. The dataset includes following 3 domains:
+    # arxiv, jdm and plos
+    container_path: ../../data/SentenceCorpus
+    categories:
+    shuffle: True
+    random_state: 42
 

@@ -65,6 +65,11 @@ elif dataset_name == "20newsgroup":
                                                      categories=cfg["datasets"][dataset_name]["categories"],
                                                      shuffle=cfg["datasets"][dataset_name]["shuffle"],
                                                      random_state=cfg["datasets"][dataset_name]["random_state"])
+elif dataset_name == "localdata":
+    datasets = data_helpers.get_datasets_localdata(container_path=cfg["datasets"][dataset_name]["container_path"],
+                                                     categories=cfg["datasets"][dataset_name]["categories"],
+                                                     shuffle=cfg["datasets"][dataset_name]["shuffle"],
+                                                     random_state=cfg["datasets"][dataset_name]["random_state"])
 x_text, y = data_helpers.load_data_labels(datasets)
 
 # Build vocabulary

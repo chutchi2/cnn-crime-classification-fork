@@ -1,6 +1,7 @@
 import numpy as np
 import re
 from sklearn.datasets import fetch_20newsgroups
+from sklearn.datasets import load_files
 
 
 def clean_str(string):
@@ -73,6 +74,23 @@ def get_datasets_mrpolarity(positive_data_file, negative_data_file):
     target = [0 for x in positive_examples] + [1 for x in negative_examples]
     datasets['target'] = target
     datasets['target_names'] = ['positive_examples', 'negative_examples']
+    return datasets
+
+
+def get_datasets_localdata(container_path=None, categories=None, load_content=True,
+                       encoding='utf-8', shuffle=True, random_state=42):
+    """
+    Load text files with categories as subfolder names.
+    Individual samples are assumed to be files stored a two levels folder structure.
+    :param subset: train, test or all
+    :param categories: List of newsgroup name
+    :param shuffle: shuffle the list or not
+    :param random_state: seed integer to shuffle the dataset
+    :return: data and labels of the newsgroup
+    """
+    datasets = load_files(container_path=container_path, categories=categories,
+                          load_content=load_content, shuffle=shuffle, encoding=encoding,
+                          random_state=random_state)
     return datasets
 
 
