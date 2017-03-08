@@ -21,6 +21,8 @@ optional arguments:
   -h, --help            show this help message and exit
   --embedding_dim EMBEDDING_DIM
                         Dimensionality of character embedding (default: 128)
+  --enable_word_embeddings
+                        Enable/disable the word embeddings (default: True)
   --filter_sizes FILTER_SIZES
                         Comma-separated filter sizes (default: '3,4,5')
   --num_filters NUM_FILTERS
