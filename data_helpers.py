@@ -82,11 +82,11 @@ def get_datasets_localdata(container_path=None, categories=None, load_content=Tr
     """
     Load text files with categories as subfolder names.
     Individual samples are assumed to be files stored a two levels folder structure.
-    :param subset: train, test or all
-    :param categories: List of newsgroup name
+    :param container_path: The path of the container
+    :param categories: List of classes to choose, all classes are chosen by default (if empty or omitted)
     :param shuffle: shuffle the list or not
     :param random_state: seed integer to shuffle the dataset
-    :return: data and labels of the newsgroup
+    :return: data and labels of the dataset
     """
     datasets = load_files(container_path=container_path, categories=categories,
                           load_content=load_content, shuffle=shuffle, encoding=encoding,
