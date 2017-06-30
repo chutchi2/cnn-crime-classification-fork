@@ -9,7 +9,7 @@ import data_helpers
 from text_cnn import TextCNN
 from tensorflow.contrib import learn
 import yaml
-
+import pdb
 # Parameters
 # ==================================================
 
@@ -100,6 +100,7 @@ with tf.Graph().as_default():
       allow_soft_placement=FLAGS.allow_soft_placement,
       log_device_placement=FLAGS.log_device_placement)
     sess = tf.Session(config=session_conf)
+    pdb.set_trace()
     with sess.as_default():
         cnn = TextCNN(
             sequence_length=x_train.shape[1],
