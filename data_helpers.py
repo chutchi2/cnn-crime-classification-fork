@@ -2,7 +2,8 @@ import numpy as np
 import re
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.datasets import load_files
-
+import nltk.data
+import pdb
 
 def clean_str(string):
     """
@@ -76,6 +77,28 @@ def get_datasets_mrpolarity(positive_data_file, negative_data_file):
     datasets['target_names'] = ['positive_examples', 'negative_examples']
     return datasets
 
+def get_datasets_codydata(one_data_file, two_data_file, three_data_file, four_data_file):
+    """
+    Loads MR polarity data from files, splits the data into words and generates labels.
+    Returns split sentences and labels.
+    """
+    # Load data from files
+    one_examples = list(open(one_data_file, "r").readlines())
+    one_examples = [s.strip() for s in one_examples]
+    two_examples = list(open(two_data_file, "r").readlines())
+    two_examples = [s.strip() for s in two_examples]
+    three_examples = list(open(three_data_file, "r").readlines())
+    three_examples = [s.strip() for s in three_examples]
+    four_examples = list(open(four_data_file, "r").readlines())
+    four_examples = [s.strip() for s in four_examples]
+
+    datasets = dict()
+    datasets['data'] = one_examples + two_examples + three_examples + four_examples
+    target = [0 for x in one_examples] + [1 for x in two_examples] + [2 for x in three_examples] + [3 for x in four_examples]
+    datasets['target'] = target
+    datasets['target_names'] = ['one_examples', 'two_examples', 'three_examples', 'four_examples']
+    return datasets
+
 
 def get_datasets_localdata(container_path=None, categories=None, load_content=True,
                        encoding='utf-8', shuffle=True, random_state=42):
@@ -101,11 +124,17 @@ def load_data_labels(datasets):
     :return:
     """
     # Split by words
-    x_text = datasets['data']
-    x_text = [clean_str(sent) for sent in x_text]
+    x_t = datasets['data']
+    x_text = []
+    tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+    for token in tokenizer.tokenize(str(x_t)):
+        x_text.append(clean_str(token))
+    #for sent in x_t:
+        #x_text.append(clean_str(sent))
     # Generate labels
     labels = []
     for i in range(len(x_text)):
+        #pdb.set_trace()
         label = [0 for j in datasets['target_names']]
         label[datasets['target'][i]] = 1
         labels.append(label)

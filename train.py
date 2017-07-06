@@ -60,6 +60,11 @@ datasets = None
 if dataset_name == "mrpolarity":
     datasets = data_helpers.get_datasets_mrpolarity(cfg["datasets"][dataset_name]["positive_data_file"]["path"],
                                                     cfg["datasets"][dataset_name]["negative_data_file"]["path"])
+elif dataset_name == "codydata":
+    datasets = data_helpers.get_datasets_codydata(cfg["datasets"][dataset_name]["one_data_file"]["path"],
+                                                    cfg["datasets"][dataset_name]["two_data_file"]["path"],
+                                                    cfg["datasets"][dataset_name]["three_data_file"]["path"],
+                                                    cfg["datasets"][dataset_name]["four_data_file"]["path"])    
 elif dataset_name == "20newsgroup":
     datasets = data_helpers.get_datasets_20newsgroup(subset="train",
                                                      categories=cfg["datasets"][dataset_name]["categories"],
@@ -87,6 +92,7 @@ y_shuffled = y[shuffle_indices]
 # TODO: This is very crude, should use cross-validation
 dev_sample_index = -1 * int(FLAGS.dev_sample_percentage * float(len(y)))
 x_train, x_dev = x_shuffled[:dev_sample_index], x_shuffled[dev_sample_index:]
+pdb.set_trace()
 y_train, y_dev = y_shuffled[:dev_sample_index], y_shuffled[dev_sample_index:]
 print("Vocabulary Size: {:d}".format(len(vocab_processor.vocabulary_)))
 print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
@@ -100,7 +106,6 @@ with tf.Graph().as_default():
       allow_soft_placement=FLAGS.allow_soft_placement,
       log_device_placement=FLAGS.log_device_placement)
     sess = tf.Session(config=session_conf)
-    pdb.set_trace()
     with sess.as_default():
         cnn = TextCNN(
             sequence_length=x_train.shape[1],
