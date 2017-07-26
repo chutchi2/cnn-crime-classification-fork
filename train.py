@@ -10,6 +10,22 @@ from text_cnn import TextCNN
 from tensorflow.contrib import learn
 import yaml
 import pdb
+
+
+
+
+
+from sklearn.datasets import fetch_20newsgroups
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
+import numpy as np
+from sklearn.linear_model import SGDClassifier
+from sklearn import metrics
+
+
+
 # Parameters
 # ==================================================
 
@@ -96,10 +112,11 @@ y_train, y_dev = y_shuffled[:dev_sample_index], y_shuffled[dev_sample_index:]
 print("Vocabulary Size: {:d}".format(len(vocab_processor.vocabulary_)))
 print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
 
-
 # Training
-# ==================================================
-
+# ================================================== 
+#Naive-Bayes
+#SVM
+#CNN
 with tf.Graph().as_default():
     session_conf = tf.ConfigProto(
       allow_soft_placement=FLAGS.allow_soft_placement,
