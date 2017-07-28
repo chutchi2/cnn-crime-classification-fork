@@ -24,12 +24,11 @@ from sklearn.pipeline import Pipeline
 import numpy as np
 from sklearn.linear_model import SGDClassifier
 from sklearn import metrics
-
+from sklearn.multiclass import OneVsRestClassifier
 
 
 # Parameters
 # ==================================================
-d c
 # Data loading params
 tf.flags.DEFINE_float("dev_sample_percentage", .1, "Percentage of the training data to use for validation")
 
@@ -164,19 +163,21 @@ class TfidfEmbeddingVectorizer(object):
                 for words in X
             ])
 
-etree_w2v = Pipeline([
-    ("word2vec vectorizer", MeanEmbeddingVectorizer(w2v)),
-    ("extra trees", ExtraTreesClassifier(n_estimators=200))])
-etree_w2v_tfidf = Pipeline([
-    ("word2vec vectorizer", TfidfEmbeddingVectorizer(w2v)),
-    ("extra trees", ExtraTreesClassifier(n_estimators=200))])
-etree_w2v = etree_w2v.fit(x_train, y_train)
-predicted2 = etree_w2v.predict(x_dev)
-print(np.mean(predicted2 == x_dev))
+# etree_w2v = Pipeline([("word2vec vectorizer", MeanEmbeddingVectorizer(w2v)),("extra trees", ExtraTreesClassifier(n_estimators=200))])
+etree_w2v_tfidf = Pipeline([("word2vec vectorizer", TfidfEmbeddingVectorizer(w2v)),("extra trees", OneVsRestClassifier(MultinomialNB()))])
+# etree_w2v = etree_w2v.fit(x_train, y_train)
+# predicted2 = etree_w2v.predict(x_train)
+# print(np.mean(predicted2 == y_train))
 etree_w2v_tfidf = etree_w2v_tfidf.fit(x_train, y_train)
-predicted2 = etree_w2v_tfidf.predict(x_dev)
-print(np.mean(predicted2 == x_dev))
+predicted2 = etree_w2v_tfidf.predict(x_train)
+print(np.mean(predicted2 == y_train))
+
 #SVM
+text_clf = Pipeline([("word2vec vectorizer", TfidfEmbeddingVectorizer(w2v)),('clf', OneVsRestClassifier(SGDClassifier(loss='hinge', penalty='l2',alpha=1e-3, n_iter=5, random_state=42)))])
+text_clf = text_clf.fit(x_train, y_train)
+predicted = text_clf.predict(x_train)
+print(np.mean(predicted == y_train))
+
 #CNN
 with tf.Graph().as_default():
     session_conf = tf.ConfigProto(
