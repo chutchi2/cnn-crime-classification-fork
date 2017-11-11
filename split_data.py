@@ -12,6 +12,7 @@ def split_file(frac_num,root,fp):
     bashCommand2 = "mv xaa " + root + "/"  + m.group(0) + ".txt"
     process = subprocess.Popen(bashCommand2.split(),stdout=subprocess.PIPE)
     output, error = process.communicate()
+    bashCommand3 = "iconv -f us-ascii -t UTF-8"
 def clean_folder(root,files,frac_num):
     for fp in files:    
         if not (re.search('(bak)\w+',fp)):
@@ -26,5 +27,9 @@ def run(argv):
                 os.remove(os.path.join(root,fp))
             else:
                 split_file(frac_num,root,fp)
+    bashCommand = "rm x*"
+    process = subprocess.Popen(bashCommand.split(),stdout=subprocess.PIPE)
+    output, error = process.communicate()
 
 run(sys.argv)
+
