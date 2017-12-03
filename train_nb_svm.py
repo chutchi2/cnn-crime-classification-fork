@@ -1,5 +1,13 @@
 #! /usr/bin/env python
+#------------------------------------------------------------------------------
+# Filename: [File Name]
 
+# Description:
+# [Description]
+
+# Usage:
+# python [filename].py [arguments]
+#------------------------------------------------------------------------------
 import tensorflow as tf
 import numpy as np
 import os
@@ -10,8 +18,6 @@ from text_cnn import TextCNN
 from tensorflow.contrib import learn
 import yaml
 import pdb
-
-
 
 
 from collections import defaultdict
@@ -80,7 +86,7 @@ elif dataset_name == "codydata":
     datasets = data_helpers.get_datasets_codydata(cfg["datasets"][dataset_name]["one_data_file"]["path"],
                                                     cfg["datasets"][dataset_name]["two_data_file"]["path"],
                                                     cfg["datasets"][dataset_name]["three_data_file"]["path"],
-                                                    cfg["datasets"][dataset_name]["four_data_file"]["path"])    
+                                                    cfg["datasets"][dataset_name]["four_data_file"]["path"])
 elif dataset_name == "20newsgroup":
     datasets = data_helpers.get_datasets_20newsgroup(subset="train",
                                                      categories=cfg["datasets"][dataset_name]["categories"],
@@ -113,7 +119,7 @@ print("Vocabulary Size: {:d}".format(len(vocab_processor.vocabulary_)))
 print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
 
 # Training
-# ================================================== 
+# ==================================================
 
 #Naive-Bayes
 from sklearn.pipeline import Pipeline
@@ -121,6 +127,16 @@ from sklearn.ensemble import ExtraTreesClassifier
 with open("GloVe/vectors.txt", "rb") as lines:
     w2v = {line.split()[0]: np.array(map(float, line.split()[1:]))
            for line in lines}
+
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
+
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 class MeanEmbeddingVectorizer(object):
     def __init__(self, word2vec):
         self.word2vec = word2vec
@@ -137,17 +153,37 @@ class MeanEmbeddingVectorizer(object):
                     or [np.zeros(self.dim)], axis=0)
             for words in X
         ])
+
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
+
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 class TfidfEmbeddingVectorizer(object):
     def __init__(self, word2vec):
         self.word2vec = word2vec
         self.word2weight = None
         self.dim = len(word2vec.itervalues().next())
 
+
+    #------------------------------------------------------------------------------
+    # [Description]
+    #
+    # Arguments:
+    # [argument] - argument description
+
+    # Returns:
+    # [Description of return]
+    #------------------------------------------------------------------------------
     def fit(self, X, y):
         tfidf = TfidfVectorizer(analyzer=lambda x: x)
         tfidf.fit(X)
         # if a word was never seen - it must be at least as infrequent
-        # as any of the known words - so the default idf is the max of 
+        # as any of the known words - so the default idf is the max of
         # known idf's
         max_idf = max(tfidf.idf_)
         self.word2weight = defaultdict(
@@ -156,6 +192,15 @@ class TfidfEmbeddingVectorizer(object):
 
         return self
 
+    #------------------------------------------------------------------------------
+    # [Description]
+    #
+    # Arguments:
+    # [argument] - argument description
+
+    # Returns:
+    # [Description of return]
+    #------------------------------------------------------------------------------
     def transform(self, X):
         return np.array([
                 np.mean([self.word2vec[w] * self.word2weight[w]

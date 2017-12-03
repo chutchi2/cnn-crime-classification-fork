@@ -1,4 +1,13 @@
 #! /usr/bin/env python
+#------------------------------------------------------------------------------
+# Filename: [File Name]
+
+# Description:
+# [Description]
+
+# Usage:
+# python [filename].py [arguments]
+#------------------------------------------------------------------------------
 
 import tensorflow as tf
 import numpy as np
@@ -9,7 +18,15 @@ import csv
 from sklearn import metrics
 import yaml
 
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
 
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
     if x.ndim == 1:

@@ -1,3 +1,13 @@
+#! /usr/bin/env python
+#------------------------------------------------------------------------------
+# Filename: [File Name]
+
+# Description:
+# [Description]
+
+# Usage:
+# python [filename].py [arguments]
+#------------------------------------------------------------------------------
 import numpy as np
 import re
 from sklearn.datasets import fetch_20newsgroups
@@ -5,6 +15,15 @@ from sklearn.datasets import load_files
 import nltk.data
 import pdb
 
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
+
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 def clean_str(string):
     """
     Tokenization/string cleaning for all datasets except for SST.
@@ -25,7 +44,15 @@ def clean_str(string):
     string = re.sub(r"\s{2,}", " ", string)
     return string.strip().lower()
 
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
 
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 def batch_iter(data, batch_size, num_epochs, shuffle=True):
     """
     Generates a batch iterator for a dataset.
@@ -45,7 +72,15 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
             end_index = min((batch_num + 1) * batch_size, data_size)
             yield shuffled_data[start_index:end_index]
 
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
 
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 def get_datasets_20newsgroup(subset='train', categories=None, shuffle=True, random_state=42):
     """
     Retrieve data from 20 newsgroups
@@ -58,7 +93,15 @@ def get_datasets_20newsgroup(subset='train', categories=None, shuffle=True, rand
     datasets = fetch_20newsgroups(subset=subset, categories=categories, shuffle=shuffle, random_state=random_state)
     return datasets
 
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
 
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 def get_datasets_mrpolarity(positive_data_file, negative_data_file):
     """
     Loads MR polarity data from files, splits the data into words and generates labels.
@@ -77,6 +120,15 @@ def get_datasets_mrpolarity(positive_data_file, negative_data_file):
     datasets['target_names'] = ['positive_examples', 'negative_examples']
     return datasets
 
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
+
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 def get_datasets_codydata(one_data_file, two_data_file, three_data_file, four_data_file):
     """
     Loads MR polarity data from files, splits the data into words and generates labels.
@@ -99,7 +151,15 @@ def get_datasets_codydata(one_data_file, two_data_file, three_data_file, four_da
     datasets['target_names'] = ['one_examples', 'two_examples', 'three_examples', 'four_examples']
     return datasets
 
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
 
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 def get_datasets_localdata(container_path=None, categories=None, load_content=True,
                        encoding='utf-8', shuffle=True, random_state=42):
     """
@@ -116,7 +176,15 @@ def get_datasets_localdata(container_path=None, categories=None, load_content=Tr
                           random_state=random_state)
     return datasets
 
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
 
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 def load_data_labels(datasets):
     """
     Load data and labels
@@ -141,7 +209,15 @@ def load_data_labels(datasets):
     y = np.array(labels)
     return [x_text, y]
 
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
 
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 def load_embedding_vectors_word2vec(vocabulary, filename, binary):
     # load embedding_vectors from the word2vec
     encoding = 'utf-8'
@@ -183,7 +259,15 @@ def load_embedding_vectors_word2vec(vocabulary, filename, binary):
         f.close()
         return embedding_vectors
 
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
 
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 def load_embedding_vectors_glove(vocabulary, filename, vector_size):
     # load embedding_vectors from the glove
     # initial matrix with random uniform

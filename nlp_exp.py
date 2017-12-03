@@ -1,3 +1,13 @@
+#! /usr/bin/env python
+#------------------------------------------------------------------------------
+# Filename: [File Name]
+
+# Description:
+# [Description]
+
+# Usage:
+# python [filename].py [arguments]
+#------------------------------------------------------------------------------
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer

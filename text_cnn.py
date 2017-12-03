@@ -1,7 +1,26 @@
+#! /usr/bin/env python
+#------------------------------------------------------------------------------
+# Filename: [File Name]
+
+# Description:
+# [Description]
+
+# Usage:
+# python [filename].py [arguments]
+#------------------------------------------------------------------------------
 import tensorflow as tf
 import numpy as np
 
 
+#------------------------------------------------------------------------------
+# [Description]
+#
+# Arguments:
+# [argument] - argument description
+
+# Returns:
+# [Description of return]
+#------------------------------------------------------------------------------
 class TextCNN(object):
     """
     A CNN for text classification.

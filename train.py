@@ -1,5 +1,13 @@
 #! /usr/bin/env python
+#------------------------------------------------------------------------------
+# Filename: [File Name]
 
+# Description:
+# [Description]
+
+# Usage:
+# python [filename].py [arguments]
+#------------------------------------------------------------------------------
 import tensorflow as tf
 import numpy as np
 import os
@@ -64,7 +72,7 @@ elif dataset_name == "codydata":
     datasets = data_helpers.get_datasets_codydata(cfg["datasets"][dataset_name]["one_data_file"]["path"],
                                                     cfg["datasets"][dataset_name]["two_data_file"]["path"],
                                                     cfg["datasets"][dataset_name]["three_data_file"]["path"],
-                                                    cfg["datasets"][dataset_name]["four_data_file"]["path"])    
+                                                    cfg["datasets"][dataset_name]["four_data_file"]["path"])
 elif dataset_name == "20newsgroup":
     datasets = data_helpers.get_datasets_20newsgroup(subset="train",
                                                      categories=cfg["datasets"][dataset_name]["categories"],
@@ -181,6 +189,15 @@ with tf.Graph().as_default():
                 print("glove file has been loaded\n")
             sess.run(cnn.W.assign(initW))
 
+        #------------------------------------------------------------------------------
+        # [Description]
+        #
+        # Arguments:
+        # [argument] - argument description
+
+        # Returns:
+        # [Description of return]
+        #------------------------------------------------------------------------------
         def train_step(x_batch, y_batch):
             """
             A single training step
@@ -197,6 +214,16 @@ with tf.Graph().as_default():
             print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
             train_summary_writer.add_summary(summaries, step)
 
+
+        #------------------------------------------------------------------------------
+        # [Description]
+        #
+        # Arguments:
+        # [argument] - argument description
+
+        # Returns:
+        # [Description of return]
+        #------------------------------------------------------------------------------
         def dev_step(x_batch, y_batch, writer=None):
             """
             Evaluates model on a dev set
