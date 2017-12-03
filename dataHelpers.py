@@ -101,12 +101,12 @@ def get20NewsGroupDataset( subset='train', categories=None, shuffle=True,
 # Returns:
 # Returns split sentences and labels.
 #------------------------------------------------------------------------------
-def getMrPolarityDataset( positive_data_file, negative_data_file ):
+def getMrPolarityDataset( posDataFile, negDataFile ):
     # Load data from files
-    posExample = list( open( positive_data_file, "r" ).readlines() )
+    posExample = list( open( posDataFile, "r" ).readlines() )
     posExample = [s.strip() for s in posExample]
 
-    negExample = list( open( negative_data_file, "r" ).readlines() )
+    negExample = list( open( negDataFile, "r" ).readlines() )
     negExample = [s.strip() for s in negExample]
 
     datasets = dict()
@@ -193,11 +193,11 @@ def getLocalDataset( containerPath=None, categories=None,
 #------------------------------------------------------------------------------
 def loadDataLabels( datasets ):
     # Split by words
-    x_t = datasets['data']
+    x_init = datasets['data']
     x_text = []
 
     tokenizer = nltk.data.load( 'tokenizers/punkt/english.pickle' )
-    for token in tokenizer.tokenize( str(x_t) ):
+    for token in tokenizer.tokenize( str(x_init) ):
         x_text.append( cleanStr( token ) )
 
     # Generate labels
@@ -212,7 +212,7 @@ def loadDataLabels( datasets ):
     return [x_text, y]
 
 #------------------------------------------------------------------------------
-# Load embedding_vectors from the word2vec
+# Load embeddingVectors from the word2vec
 #
 # Arguments:
 # vocabulary - argument description
@@ -226,14 +226,14 @@ def loadWord2VecEmbeddings( vocabulary, filename, binary ):
     encoding = 'utf-8'
     with open( filename, "rb" ) as pFile:
         header = pFile.readline()
-        vocab_size, vecSize = map( int, header.split() )
+        vocabSize, vecSize = map( int, header.split() )
         # initial matrix with random uniform
-        embedding_vectors = np.random.uniform( -0.25, 0.25,
+        embeddingVectors = np.random.uniform( -0.25, 0.25,
                                              ( len( vocabulary ), vecSize ) )
 
         if binary:
-            binary_len = np.dtype( 'float32' ).itemsize * vecSize
-            for line_no in range( vocab_size ):
+            binLen = np.dtype( 'float32' ).itemsize * vecSize
+            for lineNum in range( vocabSize ):
                 word = []
                 while True:
                     ch = pFile.read( 1 )
@@ -246,29 +246,29 @@ def loadWord2VecEmbeddings( vocabulary, filename, binary ):
                 word = str( b''.join( word ), encoding=encoding, errors='strict' )
                 idx = vocabulary.get( word )
                 if idx != 0:
-                    embedding_vectors[idx] = np.fromstring( pFile.read( binary_len ), dtype='float32' )
+                    embeddingVectors[idx] = np.fromstring( pFile.read( binLen ), dtype='float32' )
                 else:
-                    pFile.seek( binary_len, 1 )
+                    pFile.seek( binLen, 1 )
 
         else:
-            for line_no in range(vocab_size):
+            for lineNum in range(vocabSize):
                 line = pFile.readline()
                 if line == b'':
                     raise EOFError( "unexpected end of input; is count incorrect or file otherwise damaged?" )
                 parts = str( line.rstrip(), encoding=encoding, errors='strict' ).split( " " )
                 if len( parts ) != vecSize + 1:
-                    raise ValueError( "invalid vector on line %s (is this really the text format?)" % ( line_no ) )
+                    raise ValueError( "invalid vector on line %s (is this really the text format?)" % ( lineNum ) )
                 word, vector = parts[0], list( map( 'float32', parts[1:] ) )
                 idx = vocabulary.get( word )
                 if idx != 0:
-                    embedding_vectors[idx] = vector
+                    embeddingVectors[idx] = vector
 
         pFile.close()
 
-        return embedding_vectors
+        return embeddingVectors
 
 #------------------------------------------------------------------------------
-# Load embedding_vectors from the glove. Initial matrix with random uniform
+# Load embeddingVectors from the glove. Initial matrix with random uniform
 #
 # Arguments:
 # [argument] - argument description
@@ -277,7 +277,7 @@ def loadWord2VecEmbeddings( vocabulary, filename, binary ):
 # [Description of return]
 #------------------------------------------------------------------------------
 def loadGloveEmbeddings( vocabulary, filename, vecSize ):
-    embedding_vectors = np.random.uniform( -0.25, 0.25,
+    embeddingVectors = np.random.uniform( -0.25, 0.25,
                                          ( len( vocabulary ), vecSize ) )
     pFile = open( filename )
     for line in pFile:
@@ -286,7 +286,7 @@ def loadGloveEmbeddings( vocabulary, filename, vecSize ):
         vector = np.asarray( values[1:], dtype="float32" )
         idx = vocabulary.get( word )
         if idx != 0:
-            embedding_vectors[idx] = vector
+            embeddingVectors[idx] = vector
     pFile.close()
 
-    return embedding_vectors
+    return embeddingVectors
