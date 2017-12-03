@@ -80,20 +80,20 @@ else:
 print( "Loading data...")
 datasets = None
 if dataset_name == "mrpolarity":
-    datasets = dataHelpers.get_datasets_mrpolarity( cfg["datasets"][dataset_name]["positive_data_file"]["path"],
+    datasets = dataHelpers.getMrPolarityDataset( cfg["datasets"][dataset_name]["positive_data_file"]["path"],
                                                     cfg["datasets"][dataset_name]["negative_data_file"]["path"] )
 elif dataset_name == "codydata":
-    datasets = dataHelpers.get_datasets_codydata( cfg["datasets"][dataset_name]["one_data_file"]["path"],
+    datasets = dataHelpers.getQuadPolarityDataSet( cfg["datasets"][dataset_name]["one_data_file"]["path"],
                                                     cfg["datasets"][dataset_name]["two_data_file"]["path"],
                                                     cfg["datasets"][dataset_name]["three_data_file"]["path"],
                                                     cfg["datasets"][dataset_name]["four_data_file"]["path"] )
 elif dataset_name == "20newsgroup":
-    datasets = dataHelpers.get_datasets_20newsgroup( subset="train",
+    datasets = dataHelpers.get20NewsGroupDataset( subset="train",
                                                      categories=cfg["datasets"][dataset_name]["categories"],
                                                      shuffle=cfg["datasets"][dataset_name]["shuffle"],
                                                      random_state=cfg["datasets"][dataset_name]["random_state"] )
 elif dataset_name == "localdata":
-    datasets = dataHelpers.get_datasets_localdata( container_path=cfg["datasets"][dataset_name]["container_path"],
+    datasets = dataHelpers.getLocalDataset( container_path=cfg["datasets"][dataset_name]["container_path"],
                                                      categories=cfg["datasets"][dataset_name]["categories"],
                                                      shuffle=cfg["datasets"][dataset_name]["shuffle"],
                                                      random_state=cfg["datasets"][dataset_name]["random_state"] )
