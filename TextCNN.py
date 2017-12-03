@@ -83,8 +83,8 @@ class TextCNN( object ):
                 shape=[numFiltsTotal, numClasses],
                 initializer=tf.contrib.layers.xavier_initializer() )
             beta = tf.Variable( tf.constant( 0.1, shape=[numClasses] ), name="beta" )
-            l2Loss += tf.nn.l2Loss( weight )
-            l2Loss += tf.nn.l2Loss( beta )
+            l2Loss += tf.nn.l2_loss( weight )
+            l2Loss += tf.nn.l2_loss( beta )
             self.scores = tf.nn.xw_plus_b( self.reluInstDrop, weight, beta, name="scores" )
             self.predictions = tf.argmax( self.scores, 1, name="predictions" )
 

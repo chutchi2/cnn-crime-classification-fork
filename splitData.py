@@ -23,12 +23,12 @@ import subprocess
 # Returns:
 # [Description of return]
 #------------------------------------------------------------------------------
-def splitFile( frac_num, root, fp ):
-    bashCommand = "split -n " + str( frac_num ) + " "  + root + "/" + fp
+def splitFile( divideByNum, root, fp ):
+    bashCommand = "split -n " + str( divideByNum ) + " "  + root + "/" + fp
     process = subprocess.Popen( bashCommand.split(), stdout=subprocess.PIPE )
     output, error = process.communicate()
-    m = re.search( '(?<=bak)\w+', os.path.join( root, fp ) )
 
+    m = re.search( '(?<=bak)\w+', os.path.join( root, fp ) )
     bashCommand2 = "mv xaa " + root + "/"  + m.group( 0 ) + ".txt"
     process = subprocess.Popen( bashCommand2.split(), stdout = subprocess.PIPE )
     output, error = process.communicate()

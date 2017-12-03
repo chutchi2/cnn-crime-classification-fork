@@ -14,6 +14,7 @@ from sklearn.datasets import fetch_20newsgroups
 from sklearn.datasets import load_files
 import nltk.data
 import pdb
+import sys
 
 #------------------------------------------------------------------------------
 # Tokenization/string cleaning for all datasets except for SST. Original taken
@@ -147,13 +148,9 @@ def getQuadPolarityDataSet( dataFileOne, dataFileTwo, dataFileThree,
     fourExamples = [s.strip() for s in fourExamples]
 
     datasets = dict()
-    datasets['data'] = oneExamples + twoExamples + threeExamples
-                        + fourExamples
+    datasets['data'] = oneExamples + twoExamples + threeExamples + fourExamples
 
-    target = [0 for x in oneExamples]
-             + [1 for x in twoExamples]
-             + [2 for x in threeExamples]
-             + [3 for x in fourExamples]
+    target = [0 for x in oneExamples] + [1 for x in twoExamples] + [2 for x in threeExamples] + [3 for x in fourExamples]
 
     datasets['target'] = target
     datasets['target_names'] = ['oneExamples', 'twoExamples',

@@ -18,6 +18,7 @@ from TextCNN import TextCNN
 from tensorflow.contrib import learn
 import yaml
 import pdb
+import sys
 
 #------------------------------------------------------------------------------
 # Compute softmax values for each sets of scores in x.
@@ -82,7 +83,7 @@ def loadTFParameters(cfg):
     else:
         embeddingDim = FLAGS.embedding_dim
 
-    return embeddingName
+    return embeddingName, embeddingDim, FLAGS
 #------------------------------------------------------------------------------
 # Data Preparation
 #
@@ -92,7 +93,7 @@ def loadTFParameters(cfg):
 # Returns:
 # [Description of return]
 #------------------------------------------------------------------------------
-def prepData():
+def prepData( cfg, FLAGS ):
     # Load data
     print( "Loading data..." )
     datasetName = cfg["datasets"]["default"]
@@ -124,7 +125,6 @@ def prepData():
         maxDocLen = max( [len( sentence.split( " " ) ) for sentence in x_text] )
         vocabProc = learn.preprocessing.VocabularyProcessor( maxDocLen )
         x_inter = np.array( list( vocabProc.fit_transform( x_text ) ) )
-
     # Randomly shuffle data
     np.random.seed( 10 )
     shuffleIndices = np.random.permutation( np.arange( len( y ) ) )
@@ -139,6 +139,7 @@ def prepData():
     print( "Vocabulary Size: {:d}".format( len( vocabProc.vocabulary_ ) ) )
     print( "Train/Dev split: {:d}/{:d}".format( len( y_train ), len( y_dev ) ) )
 
+    return x_train, x_dev, y_train, y_dev, vocabProc
 #------------------------------------------------------------------------------
 # A single training step
 #
@@ -148,7 +149,7 @@ def prepData():
 # Returns:
 # [Description of return]
 #------------------------------------------------------------------------------
-def trainStep( x_batch, y_batch ):
+def trainStep( cnn, FLAGS, x_batch, y_batch, sess, trainOp, globalStep, trainSummaryOp, writer=None ):
     feedDict = {
       cnn.input_x: x_batch,
       cnn.input_y: y_batch,
@@ -159,7 +160,7 @@ def trainStep( x_batch, y_batch ):
         feedDict )
     timeStr = datetime.datetime.now().isoformat()
     print( "{}: step {}, loss {:g}, acc {:g}".format( timeStr, step, loss, accuracy ) )
-    trainSummaryWriter.add_summary( summaries, step )
+    writer.add_summary( summaries, step )
 
 #------------------------------------------------------------------------------
 # Evaluates model on a dev set
@@ -170,7 +171,7 @@ def trainStep( x_batch, y_batch ):
 # Returns:
 # [Description of return]
 #------------------------------------------------------------------------------
-def devStep( x_batch, y_batch, writer=None ):
+def devStep( cnn, x_batch, y_batch, sess, globalStep, devSummaryOp, writer=None ):
     feedDict = {
       cnn.input_x: x_batch,
       cnn.input_y: y_batch,
@@ -193,7 +194,7 @@ def devStep( x_batch, y_batch, writer=None ):
 # Returns:
 # [Description of return]
 #------------------------------------------------------------------------------
-def train( embeddingName ):
+def train( embeddingName, FLAGS, x_train, x_dev, y_train, y_dev, vocabProc , embeddingDim, cfg ):
     with tf.Graph().as_default():
         sessionConf = tf.ConfigProto(
           allow_soft_placement = FLAGS.allow_soft_placement,
@@ -213,7 +214,7 @@ def train( embeddingName ):
             globalStep = tf.Variable( 0, name="globalStep", trainable=False )
             optimizer = tf.train.AdamOptimizer( 1e-3 )
             gradsAndVars = optimizer.compute_gradients( cnn.loss )
-            trainOp = optimizer.apply_gradients( gradsAndVars, globalStep=globalStep )
+            trainOp = optimizer.apply_gradients( gradsAndVars, global_step=globalStep )
 
             # Keep track of gradient values and sparsity (optional)
             gradSummaries = []
@@ -269,11 +270,11 @@ def train( embeddingName ):
                 elif embeddingName == 'glove':
                     # load embedding vectors from the glove
                     print( "Load glove file {}".format( cfg['word_embeddings']['glove']['path'] ) )
-                    initW = dataHelpers.loadGloveEmbeddings( vocabulary,
+                    initWeight = dataHelpers.loadGloveEmbeddings( vocabulary,
                                                                       cfg['word_embeddings']['glove']['path'],
                                                                       embeddingDim )
                     print( "glove file has been loaded\n" )
-                sess.run( cnn.W.assign( initW ) )
+                sess.run( cnn.weight.assign( initWeight ) )
 
             # Generate batches
             batches = dataHelpers.batchIter(
@@ -281,11 +282,11 @@ def train( embeddingName ):
             # Training loop. For each batch...
             for batch in batches:
                 x_batch, y_batch = zip( *batch )
-                trainStep( x_batch, y_batch )
-                currentStep = tf.train.globalStep( sess, globalStep )
+                trainStep( cnn, FLAGS, x_batch, y_batch, sess, trainOp, globalStep, trainSummaryOp, writer=trainSummaryWriter )
+                currentStep = tf.train.global_step( sess, globalStep )
                 if currentStep % FLAGS.evaluateEvery == 0:
                     print( "\nEvaluation:" )
-                    devStep( x_dev, y_dev, writer=devSummaryWriter )
+                    devStep( cnn, x_dev, y_dev, sess, globalStep, devSummaryOp, writer=devSummaryWriter )
                     print( "" )
                 if currentStep % FLAGS.checkpointEvery == 0:
                     path = saver.save( sess, checkpointPrefix, globalStep=currentStep )
@@ -294,9 +295,9 @@ def train( embeddingName ):
 #------------------------------------------------------------------------------
 def main( argv ):
     cfg = loadConfig()
-    embeddingName = loadTFParameters( cfg )
-    prepData()
-    train( embeddingName )
+    embeddingName, embeddingDim, FLAGS = loadTFParameters( cfg )
+    x_train, x_dev, y_train, y_dev, vocabProc = prepData( cfg, FLAGS )
+    train( embeddingName, FLAGS, x_train, x_dev, y_train, y_dev, vocabProc, embeddingDim, cfg )
 
 
 #------------------------------------------------------------------------------

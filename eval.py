@@ -17,6 +17,7 @@ from tensorflow.contrib import learn
 import csv
 from sklearn import metrics
 import yaml
+import sys
 
 #------------------------------------------------------------------------------
 # Compute softmax values for each sets of scores in x.
