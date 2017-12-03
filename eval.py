@@ -113,6 +113,8 @@ def loadTFParameters(cfg):
     vocabProc = learn.preprocessing.VocabularyProcessor.restore( vocabPath )
     x_test = np.array( list( vocabProc.transform( x_raw ) ) )
 
+    return FLAGS, x_test, datasets, x_raw
+
 #------------------------------------------------------------------------------
 # Evaluation
 #
@@ -122,7 +124,7 @@ def loadTFParameters(cfg):
 # Returns:
 # [Description of return]
 #------------------------------------------------------------------------------
-def evaluate():
+def evaluate( FLAGS, x_test ):
     print( "\nEvaluating...\n" )
 
     checkpointFile = tf.train.latest_checkpoint( FLAGS.checkpointDir )
@@ -163,7 +165,7 @@ def evaluate():
                     allProbabilities = np.concatenate( [allProbabilities, probabilities] )
                 else:
                     allProbabilities = probabilities
-
+    return allPredicitions, allProbabilities
 #------------------------------------------------------------------------------
 # Print accuracy if y_test is defined
 #
@@ -173,7 +175,7 @@ def evaluate():
 # Returns:
 # [Description of return]
 #------------------------------------------------------------------------------
-def showYTest(y_test):
+def showYTest( y_test, allPredicitions, datasets ):
     if y_test is not None:
         correctPredicitons = float( sum( allPredicitions == y_test ) )
         print( "Total number of test examples: {}".format( len( y_test ) ) )
@@ -190,22 +192,22 @@ def showYTest(y_test):
 # Returns:
 # [Description of return]
 #------------------------------------------------------------------------------
-def saveEvals():
+def saveEvals( x_raw, allPredicitions, allProbabilities, FLAGS):
     predictionsHumanReadable = np.column_stack( ( np.array( x_raw ),
                                                   [int(prediction) for prediction in allPredicitions],
                                                   [ "{}".format( probability ) for probability in allProbabilities] ) )
     outPath = os.path.join( FLAGS.checkpointDir, "..", "prediction.csv" )
     print( "Saving evaluation to {0}".format( outPath ) )
-    with open( outPath, 'w' ) as f:
-        csv.writer( f ).writerows( predictionsHumanReadable )
+    with open( outPath, 'w' ) as path:
+        csv.writer( path ).writerows( predictionsHumanReadable )
 
 #------------------------------------------------------------------------------
 def main( argv ):
     cfg = loadConfig()
-    loadTFParameters( cfg )
-    evaluate()
-    showYTest(y_test)
-    saveEvals()
+    FLAGS, x_test, datasets, x_raw = loadTFParameters( cfg )
+    allPredicitions, allProbabilities = evaluate( FLAGS, x_test )
+    showYTest( y_test, allPredicitions, datasets )
+    saveEvals( x_raw, allPredicitions, allProbabilities , FLAGS )
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
