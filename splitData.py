@@ -60,17 +60,17 @@ def cleanFolder( root, files, fracNum ):
 # Returns:
 # [Description of return]
 #------------------------------------------------------------------------------
-def run( fracNum, dataDir ):
-    for root, subdir, files in os.walk( dataDir = "data/subdata/" ):
+def run( fracNum, dataDir="data/subdata/" ):
+    for root, subdir, files in os.walk( dataDir ):
         for fp in files:
             if not ( re.search( '(bak)\w+', fp ) ):
                 os.remove( os.path.join( root, fp ) )
             else:
                 splitFile( fracNum, root, fp )
 
-    bashCommand = "rm x*"
-    process = subprocess.Popen( bashCommand.split(), stdout = subprocess.PIPE )
-    output, error = process.communicate()
+    # bashCommand = "rm x*"
+    # process = subprocess.Popen( bashCommand.split(), stdout = subprocess.PIPE )
+    # output, error = process.communicate()
 
 #------------------------------------------------------------------------------
 def main( argv ):
