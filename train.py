@@ -8,17 +8,16 @@
 # Usage:
 # python train.py
 #------------------------------------------------------------------------------
-import tensorflow as tf
+import dataHelpers
+import datetime
 import numpy as np
 import os
-import time
-import datetime
-import dataHelpers
-from TextCNN import TextCNN
+import tensorflow as tf
 from tensorflow.contrib import learn
-import yaml
-import pdb
+from TextCNN import TextCNN
+import time
 import sys
+import yaml
 
 #------------------------------------------------------------------------------
 # Loads text CNN into a cfg object for referencing in evaluations.
@@ -40,7 +39,8 @@ class TrainTextCNN():
         self.cfg = loadConfig()
 
 #------------------------------------------------------------------------------
-# Parameters
+# Loads the TensorFlow parameters into the flags object for referencing in
+# evaluation.
 #
 # Arguments:
 # cfg - object for referencing in evaluations
@@ -48,7 +48,7 @@ class TrainTextCNN():
 # Returns:
 # embeddingName, embeddingDim, FLAGS objects
 #------------------------------------------------------------------------------
-def loadTFParameters(cfg):
+def loadTFParameters( cfg ):
     # Parameters
     # ==================================================
     # Data loading params
@@ -90,7 +90,7 @@ def loadTFParameters(cfg):
     return embeddingName, embeddingDim, FLAGS
 
 #------------------------------------------------------------------------------
-# Prepare datasets for training
+# Prepare datasets for training.
 #
 # Arguments:
 # cfg - object for referencing in evaluations
@@ -148,7 +148,7 @@ def prepData( cfg, FLAGS ):
 
     return x_train, x_dev, y_train, y_dev, vocabProc
 #------------------------------------------------------------------------------
-# Train one batch of data
+# Train one batch of data.
 #
 # Arguments:
 # cnn - TextCNN class object
@@ -178,7 +178,7 @@ def trainStep( cnn, FLAGS, x_batch, y_batch, sess, trainOp, globalStep, trainSum
     writer.add_summary( summaries, step )
 
 #------------------------------------------------------------------------------
-# Evaluates model on a dev set
+# Evaluates model on a dev set.
 #
 # Arguments:
 # cnn - TextCNN class object

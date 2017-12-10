@@ -8,16 +8,15 @@
 # Usage:
 # python eval.py
 #------------------------------------------------------------------------------
-
-import tensorflow as tf
+import csv
+import dataHelpers
 import numpy as np
 import os
-import dataHelpers
-from tensorflow.contrib import learn
-import csv
 from sklearn import metrics
-import yaml
 import sys
+import tensorflow as tf
+from tensorflow.contrib import learn
+import yaml
 
 #------------------------------------------------------------------------------
 # Compute softmax values for each sets of scores in x.
@@ -122,7 +121,7 @@ def loadTFParameters(cfg):
     return FLAGS, x_test, datasets, x_raw, y_test
 
 #------------------------------------------------------------------------------
-# Evaluation
+# Evaluation.
 #
 # Arguments:
 # FLAGS - TensorFlow flags for referencing model
@@ -175,7 +174,7 @@ def evaluate( FLAGS, x_test ):
                     allProbabilities = probabilities
     return allPredicitions, allProbabilities
 #------------------------------------------------------------------------------
-# Print accuracy if y_test is defined
+# Print accuracy if y_test is defined.
 #
 # Arguments:
 # y_test - all labels for data in test data
@@ -194,7 +193,7 @@ def showYTest( y_test, allPredicitions, datasets ):
         print( metrics.confusion_matrix( y_test, allPredicitions ) )
 
 #------------------------------------------------------------------------------
-# Saves evaluations to a csv file based off model used
+# Saves evaluations to a csv file based off model used.
 #
 # Arguments:
 # x_raw - all training and testing data

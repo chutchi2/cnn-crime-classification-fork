@@ -3,10 +3,10 @@
 # Filename: TextCNN.py
 
 # Description:
-# Class defining text convolutional neural network using tensorflow.
+# Class defining text convolutional neural network using TensorFlow.
 #------------------------------------------------------------------------------
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 #------------------------------------------------------------------------------
 # A CNN for text classification.

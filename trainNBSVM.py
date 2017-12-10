@@ -3,38 +3,27 @@
 # Filename: trainNBSVM.py
 
 # Description:
-# Uses glove embeddings to train Naive-Bayes and Support Vector Machines on 
+# Uses glove embeddings to train Naive-Bayes and Support Vector Machines on
 # the GloVe embeddings used for the TextCNN experiment
 
 # Usage:
 # python trainNBSVM.py
 #------------------------------------------------------------------------------
-import tensorflow as tf
+import dataHelpers
 import numpy as np
 import os
-import time
-import datetime
-import dataHelpers
-from TextCNN import TextCNN
-from tensorflow.contrib import learn
-import yaml
-import pdb
-
 import sys
+import tensorflow as tf
+from tensorflow.contrib import learn
+from TextCNN import TextCNN
+import yaml
 
 from collections import defaultdict
-
-from sklearn.datasets import fetch_20newsgroups
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
-
+from sklearn.linear_model import SGDClassifier
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
-from sklearn.linear_model import SGDClassifier
-from sklearn import metrics
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.preprocessing import MultiLabelBinarizer
 
 #------------------------------------------------------------------------------
 # Loads text CNN into a cfg object for referencing in evaluations.
@@ -65,8 +54,6 @@ class TrainTextCNN():
 # embeddingName, embeddingDim, FLAGS objects
 #------------------------------------------------------------------------------
 def loadTFParameters( cfg ):
-    # Parameters
-    # ==================================================
     # Data loading params
     tf.flags.DEFINE_float( "devSamplePercentage", .1, "Percentage of the training data to use for validation" )
 
@@ -106,7 +93,7 @@ def loadTFParameters( cfg ):
     return embeddingName, embeddingDim, FLAGS
 
 #------------------------------------------------------------------------------
-# Prepare datasets for training
+# Prepare datasets for training.
 #
 # Arguments:
 # cfg - object for referencing in evaluations
@@ -165,7 +152,7 @@ def prepData( cfg, FLAGS ):
     return x_train, y_train
 
 #------------------------------------------------------------------------------
-# Opens glove vectors in pipeline parse-able format
+# Opens glove vectors in pipeline parse-able format.
 #
 # Arguments:
 # None
@@ -182,24 +169,56 @@ def openGlove():
     return w2v
 
 #------------------------------------------------------------------------------
-# [Description]
+# Defines the interface for the Mean embedding vectorizer.
 #
 # Arguments:
 # object - Class self reference
-
-# Returns:
-# [Description of return]
 #------------------------------------------------------------------------------
 class MeanEmbeddingVectorizer( object ):
+
+    #------------------------------------------------------------------------------
+    # If a word was never seen - it must be at least as infrequent as any of the
+    # known words - so the default idf is the max of known idf's.
+    #
+    # Arguments:
+    # self - Class self reference
+    # X - Training data
+    # y - Training labels
+
+    # Returns:
+    # None
+    #------------------------------------------------------------------------------
     def __init__( self, word2vec ):
         self.word2vec = word2vec
         # if a text is empty we should return a vector of zeros
         # with the same dimensionality as all the other vectors
         self.dim = len( word2vec.itervalues().next() )
 
+    #------------------------------------------------------------------------------
+    # If a word was never seen - it must be at least as infrequent as any of the
+    # known words - so the default idf is the max of known idf's.
+    #
+    # Arguments:
+    # self - Class self reference
+    # X - Training data
+    # y - Training labels
+
+    # Returns:
+    # None
+    #------------------------------------------------------------------------------
     def fit( self, X, y ):
         return self
 
+    #------------------------------------------------------------------------------
+    # Transforms output matrix into a padded output that can be parsed.
+    #
+    # Arguments:
+    # self - Class self reference
+    # X - Training data
+
+    # Returns:
+    # None
+    #------------------------------------------------------------------------------
     def transform( self, X ):
         return np.array( [
             np.mean( [self.word2vec[w] for w in words if w in self.word2vec]
@@ -208,13 +227,10 @@ class MeanEmbeddingVectorizer( object ):
         ] )
 
 #------------------------------------------------------------------------------
-# [Description]
+# Defines the interface for the TFIDF embedding vectorizer.
 #
 # Arguments:
 # object - Class self reference
-
-# Returns:
-# [Description of return]
 #------------------------------------------------------------------------------
 class TfidfEmbeddingVectorizer( object ):
     def __init__( self, word2vec ):
@@ -222,22 +238,22 @@ class TfidfEmbeddingVectorizer( object ):
         self.word2weight = None
         self.dim = len( word2vec.itervalues().next() )
 
-
     #------------------------------------------------------------------------------
-    # [Description]
+    # If a word was never seen - it must be at least as infrequent as any of the
+    # known words - so the default idf is the max of known idf's.
     #
     # Arguments:
-    # [argument] - argument description
+    # self - Class self reference
+    # X - Training data
+    # y - Training labels
 
     # Returns:
-    # [Description of return]
+    # None
     #------------------------------------------------------------------------------
     def fit( self, X, y ):
         tfidf = TfidfVectorizer( analyzer=lambda x: x )
         tfidf.fit( X )
-        # if a word was never seen - it must be at least as infrequent
-        # as any of the known words - so the default idf is the max of
-        # known idf's
+
         max_idf = max( tfidf.idf_ )
         self.word2weight = defaultdict(
             lambda: max_idf,
@@ -246,13 +262,14 @@ class TfidfEmbeddingVectorizer( object ):
         return self
 
     #------------------------------------------------------------------------------
-    # [Description]
+    # Transforms output matrix into a padded output that can be parsed.
     #
     # Arguments:
-    # [argument] - argument description
+    # self - Class self reference
+    # X - Training data
 
     # Returns:
-    # [Description of return]
+    # None
     #------------------------------------------------------------------------------
     def transform( self, X ):
         return np.array( [
@@ -263,34 +280,19 @@ class TfidfEmbeddingVectorizer( object ):
             ] )
 
 #------------------------------------------------------------------------------
-# Runs
+# Runs training on both the Naive-Bayes and Support Vector Machine models.
 #
 # Arguments:
-# bl - argh
+# w2v - GloVe input vectors
+# x - Training data
+# y - Training labels
 
 # Returns:
 # None
 #------------------------------------------------------------------------------
 def run( w2v, x, y ):
-    # etree_w2v_tfidf = Pipeline([("word2vec vectorizer", TfidfEmbeddingVectorizer(w2v),("NB", OneVsRestClassifier(MultinomialNB())))])
-    # etree_w2v_tfidf = etree_w2v_tfidf.fit(x_shuffled, y_shuffled)
-    # predicted2 = etree_w2v_tfidf.predict(x_shuffled)
-    # pdb.set_trace()
-    # print(np.mean(predicted2 == y_shuffled))
-
-    #SVM
-
-    # text_clf = Pipeline([("word2vec vectorizer", MeanEmbeddingVectorizer(w2v)),('SGD', OneVsRestClassifier(SGDClassifier(loss='hinge', penalty='l2',alpha=1e-3, n_iter=5, random_state=42)))])
-    # text_clf = text_clf.fit(x_shuffled, y_shuffled)
-    # predicted = text_clf.predict(x_shuffled)
-    # print(np.mean(predicted == y_shuffled))
-
-
-    # etree_w2v = Pipeline([("word2vec vectorizer", MeanEmbeddingVectorizer(w2v)),("extra trees", ExtraTreesClassifier(n_estimators=200))])
+    #NB
     etree_w2v_tfidf = Pipeline( [( "word2vec vectorizer", TfidfEmbeddingVectorizer( w2v ) ),( "extra trees", OneVsRestClassifier( MultinomialNB() ) ) ] )
-    # etree_w2v = etree_w2v.fit(x_train, y_train)
-    # predicted2 = etree_w2v.predict(x_train)
-    # print(np.mean(predicted2 == y_train))
     etree_w2v_tfidf = etree_w2v_tfidf.fit( x, y )
     predicted2 = etree_w2v_tfidf.predict( x )
     print( np.mean( predicted2 == y ) )

@@ -8,17 +8,16 @@
 # Usage:
 # python dataHelpers.py
 #------------------------------------------------------------------------------
+import nltk.data
 import numpy as np
 import re
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.datasets import load_files
-import nltk.data
-import pdb
 import sys
 
 #------------------------------------------------------------------------------
 # Tokenization/string cleaning for all datasets except for SST. Original taken
-# from https://github.com/yoonkim/CNN_sentence/blob/master/process_data.py
+# from https://github.com/yoonkim/CNN_sentence/blob/master/process_data.py .
 #
 # Arguments:
 # string - string value to clean of punctuation marks.
@@ -75,7 +74,7 @@ def batchIter( data, batchSize, numEpochs, shuffle=True ):
             yield shuffledData[startIndex:endIndex]
 
 #------------------------------------------------------------------------------
-# Retrieve data from 20 newsgroups
+# Retrieve data from 20 newsgroups.
 #
 # Arguments:
 # subset - train, test or all
@@ -93,7 +92,8 @@ def get20NewsGroupDataset( subset='train', categories=None, shuffle=True,
     return datasets
 
 #------------------------------------------------------------------------------
-# Loads MR polarity data from files, splits the data into words and generates labels.
+# Loads MR polarity data from files, splits the data into words and generates
+# labels.
 #
 # Arguments:
 # positiveDataFile - positive data file for bipolar training
@@ -180,7 +180,7 @@ def getLocalDataset( containerPath=None, categories=None,
     return datasets
 
 #------------------------------------------------------------------------------
-# Load data and labels
+# Load data and labels.
 #
 # Arguments:
 # datasets - argument description
@@ -209,7 +209,7 @@ def loadDataLabels( datasets ):
     return [x_text, y]
 
 #------------------------------------------------------------------------------
-# Load embeddingVectors from the word2vec
+# Load embeddingVectors from the word2vec.
 #
 # Arguments:
 # vocabulary - argument description
@@ -265,7 +265,7 @@ def loadWord2VecEmbeddings( vocabulary, filename, binary ):
         return embeddingVectors
 
 #------------------------------------------------------------------------------
-# Load embeddingVectors from the glove. Initial matrix with random uniform
+# Load embeddingVectors from the glove. Initial matrix with random uniform.
 #
 # Arguments:
 # vocabulary - GloVe generated vocabulary file

@@ -8,11 +8,10 @@
 # Usage:
 # python splitData.py fracNum dataDir
 #------------------------------------------------------------------------------
-import pdb
-import sys
 import os
 import re
 import subprocess
+import sys
 
 #------------------------------------------------------------------------------
 # Splits a text file using unix bash commands into a fraction of the original
@@ -75,7 +74,7 @@ def countNumSentences( root, files ):
             return len( pFile )
 
 #------------------------------------------------------------------------------
-# Runs the necessary building and cleaning to split files
+# Runs the necessary building and cleaning to split files.
 #
 # Arguments:
 # fracNum - the fraction of the size to divide the file by
