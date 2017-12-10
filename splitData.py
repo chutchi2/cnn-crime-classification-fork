@@ -3,7 +3,7 @@
 # Filename: splitData.py
 
 # Description:
-# [Description]
+# Contains the necessary functions to split all files in a certain directory.
 
 # Usage:
 # python splitData.py fracNum dataDir
@@ -36,7 +36,7 @@ def splitFile( divideByNum, root, fp ):
     process = subprocess.Popen( bashCommand2.split(), stdout = subprocess.PIPE )
     output, error = process.communicate()
 
-    bashCommand3 = "iconv -f us-ascii -t UTF-8"
+    #bashCommand3 = "iconv -f us-ascii -t UTF-8"
 
 #------------------------------------------------------------------------------
 # Takes a file list and decides to remove the file or to split the file.
@@ -75,14 +75,14 @@ def countNumSentences( root, files ):
             return len( pFile )
 
 #------------------------------------------------------------------------------
-# [Description]
+# Runs the necessary building and cleaning to split files
 #
 # Arguments:
-# fracNum - pp
-# dataDir - argument description
+# fracNum - the fraction of the size to divide the file by
+# dataDir - location of files to split
 
 # Returns:
-# [Description of return]
+# None
 #------------------------------------------------------------------------------
 def run( fracNum, dataDir="data/subdata/" ):
     for root, subdir, files in os.walk( dataDir ):
@@ -92,7 +92,6 @@ def run( fracNum, dataDir="data/subdata/" ):
     bashCommand = "rm xaa xab xac xad xae xaf xag xah xai xaj"
     process = subprocess.Popen( bashCommand.split(), stdout = subprocess.PIPE )
     output, error = process.communicate()
-    print output
 
 #------------------------------------------------------------------------------
 def main( argv ):

@@ -3,10 +3,10 @@
 # Filename: train.py
 
 # Description:
-# [Description]
+# Trains a text CNN model
 
 # Usage:
-# python train.py [arguments]
+# python train.py
 #------------------------------------------------------------------------------
 import tensorflow as tf
 import numpy as np
@@ -21,13 +21,13 @@ import pdb
 import sys
 
 #------------------------------------------------------------------------------
-# Compute softmax values for each sets of scores in x.
+# Loads text CNN into a cfg object for referencing in evaluations.
 #
 # Arguments:
-# [argument] - argument description
+# None
 
 # Returns:
-# [Description of return]
+# Configuration
 #------------------------------------------------------------------------------
 def loadConfig():
     with open( "config.yml", 'r' ) as ymlfile:
@@ -43,10 +43,10 @@ class TrainTextCNN():
 # Parameters
 #
 # Arguments:
-# [argument] - argument description
+# cfg - object for referencing in evaluations
 
 # Returns:
-# [Description of return]
+# embeddingName, embeddingDim, FLAGS objects
 #------------------------------------------------------------------------------
 def loadTFParameters(cfg):
     # Parameters
@@ -88,14 +88,16 @@ def loadTFParameters(cfg):
         embeddingDim = FLAGS.embedding_dim
 
     return embeddingName, embeddingDim, FLAGS
+
 #------------------------------------------------------------------------------
-# Data Preparation
+# Prepare datasets for training
 #
 # Arguments:
-# [argument] - argument description
+# cfg - object for referencing in evaluations
+# FLAGS - TensorFlow flags for referencing model
 
 # Returns:
-# [Description of return]
+# x_train, x_dev, y_train, y_dev, vocabProc objects
 #------------------------------------------------------------------------------
 def prepData( cfg, FLAGS ):
     # Load data
@@ -129,6 +131,7 @@ def prepData( cfg, FLAGS ):
         maxDocLen = max( [len( sentence.split( " " ) ) for sentence in x_text] )
         vocabProc = learn.preprocessing.VocabularyProcessor( maxDocLen )
         x_inter = np.array( list( vocabProc.fit_transform( x_text ) ) )
+
     # Randomly shuffle data
     np.random.seed( 10 )
     shuffleIndices = np.random.permutation( np.arange( len( y ) ) )
@@ -145,13 +148,21 @@ def prepData( cfg, FLAGS ):
 
     return x_train, x_dev, y_train, y_dev, vocabProc
 #------------------------------------------------------------------------------
-# A single training step
+# Train one batch of data
 #
 # Arguments:
-# [argument] - argument description
+# cnn - TextCNN class object
+# FLAGS - TensorFlow flags for referencing model
+# x_batch - a segment of the x_text data to train on
+# y_batch - a segment of the y_text labels to train on
+# sess - the TensorFlow session object
+# trainOp - a TensorFlow defined variable
+# globalStep - a TensorFlow defined variable
+# trainSummaryOp - a TensorFlow defined variable
+# writer - Default:None
 
 # Returns:
-# [Description of return]
+# None
 #------------------------------------------------------------------------------
 def trainStep( cnn, FLAGS, x_batch, y_batch, sess, trainOp, globalStep, trainSummaryOp, writer=None ):
     feedDict = {
@@ -170,10 +181,16 @@ def trainStep( cnn, FLAGS, x_batch, y_batch, sess, trainOp, globalStep, trainSum
 # Evaluates model on a dev set
 #
 # Arguments:
-# [argument] - argument description
+# cnn - TextCNN class object
+# x_batch - a segment of the x_text data to train on
+# y_batch - a segment of the y_text labels to train on
+# sess - the TensorFlow session object
+# globalStep - a TensorFlow defined variable
+# devSummaryOp - a TensorFlow defined variable
+# writer - Default:None
 
 # Returns:
-# [Description of return]
+# None
 #------------------------------------------------------------------------------
 def devStep( cnn, x_batch, y_batch, sess, globalStep, devSummaryOp, writer=None ):
     feedDict = {
@@ -190,13 +207,21 @@ def devStep( cnn, x_batch, y_batch, sess, globalStep, devSummaryOp, writer=None 
         writer.add_summary( summaries, step)
 
 #------------------------------------------------------------------------------
-# Training CNN
+# Train a text CNN on a datset.
 #
 # Arguments:
-# [argument] - argument description
+# embeddingName - Either GloVe or word2vec
+# FLAGS - TensorFlow flags for referencing model
+# x_train - data for training
+# x_dev - data for validation
+# y_train - labels for training
+# y_dev - labels for validation
+# vocabProc - Based on the maximum document length a processor is provided
+# embeddingDim - Embedding dimension size defined in config.yml
+# cfg - object for referencing in evaluations
 
 # Returns:
-# [Description of return]
+# None
 #------------------------------------------------------------------------------
 def train( embeddingName, FLAGS, x_train, x_dev, y_train, y_dev, vocabProc , embeddingDim, cfg ):
     with tf.Graph().as_default():
@@ -204,6 +229,7 @@ def train( embeddingName, FLAGS, x_train, x_dev, y_train, y_dev, vocabProc , emb
           allow_soft_placement = FLAGS.allow_soft_placement,
           log_device_placement = FLAGS.log_device_placement )
         sess = tf.Session( config = sessionConf )
+
         with sess.as_default():
             cnn = TextCNN(
                 sequenceLength=x_train.shape[1],
@@ -271,6 +297,7 @@ def train( embeddingName, FLAGS, x_train, x_dev, y_train, y_dev, vocabProc , emb
                                                                          cfg['word_embeddings']['word2vec']['path'],
                                                                          cfg['word_embeddings']['word2vec']['binary'] )
                     print( "word2vec file has been loaded" )
+
                 elif embeddingName == 'glove':
                     # load embedding vectors from the glove
                     print( "Load glove file {}".format( cfg['word_embeddings']['glove']['path'] ) )
@@ -283,6 +310,7 @@ def train( embeddingName, FLAGS, x_train, x_dev, y_train, y_dev, vocabProc , emb
             # Generate batches
             batches = dataHelpers.batchIter(
                 list( zip( x_train, y_train ) ), FLAGS.batchSize, FLAGS.numEpochs )
+
             # Training loop. For each batch...
             for batch in batches:
                 x_batch, y_batch = zip( *batch )

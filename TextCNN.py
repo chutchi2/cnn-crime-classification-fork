@@ -3,10 +3,7 @@
 # Filename: TextCNN.py
 
 # Description:
-# [Description]
-
-# Usage:
-# Class File
+# Class defining text convolutional neural network using tensorflow.
 #------------------------------------------------------------------------------
 import tensorflow as tf
 import numpy as np
@@ -17,10 +14,10 @@ import numpy as np
 # layer.
 #
 # Arguments:
-# [argument] - argument description
+# object - class initializer
 
 # Returns:
-# [Description of return]
+# None
 #------------------------------------------------------------------------------
 class TextCNN( object ):
     def __init__(

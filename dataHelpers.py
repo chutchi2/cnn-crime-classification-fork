@@ -24,7 +24,7 @@ import sys
 # string - string value to clean of punctuation marks.
 
 # Returns:
-# [Description of return]
+# Cleaned string as a lowercase value
 #------------------------------------------------------------------------------
 def cleanStr( string ):
     string = re.sub( r"[^A-Za-z0-9(),!?\'\`]", " ", string )
@@ -48,12 +48,12 @@ def cleanStr( string ):
 #
 # Arguments:
 # data - argument description
-# batchSize - 
-# numEpochs - 
-# shuffle - 
+# batchSize - the total batch size for each per epoch to train with
+# numEpochs - number of epochs to train with
+# shuffle - boolean to tell the iterator to shuffle inputs
 
 # Returns:
-# [Description of return]
+# A generator that when called will create the training iterator
 #------------------------------------------------------------------------------
 def batchIter( data, batchSize, numEpochs, shuffle=True ):
     data = np.array( data )
@@ -96,8 +96,8 @@ def get20NewsGroupDataset( subset='train', categories=None, shuffle=True,
 # Loads MR polarity data from files, splits the data into words and generates labels.
 #
 # Arguments:
-# positiveDataFile -
-# negativeDataFile -
+# positiveDataFile - positive data file for bipolar training
+# negativeDataFile - negative data file for bipolar training
 
 # Returns:
 # Returns split sentences and labels.
@@ -124,10 +124,10 @@ def getMrPolarityDataset( posDataFile, negDataFile ):
 # Loads data from files, splits the data into words and generates labels.
 #
 # Arguments:
-# dataFileOne - argument description
-# dataFileTwo - 
-# dataFileThree - 
-# dataFileFour - 
+# dataFileOne - one of four files to train one against rest classification
+# dataFileTwo - two of four files to train one against rest classification
+# dataFileThree - three of four files to train one against rest classification
+# dataFileFour - four of four files to train one against rest classification
 
 # Returns:
 # Returns split sentences and labels.
@@ -268,10 +268,12 @@ def loadWord2VecEmbeddings( vocabulary, filename, binary ):
 # Load embeddingVectors from the glove. Initial matrix with random uniform
 #
 # Arguments:
-# [argument] - argument description
+# vocabulary - GloVe generated vocabulary file
+# filename - the file object to parse as GloVe
+# vecSize - size of GloVe vectors to use
 
 # Returns:
-# [Description of return]
+# Word embedding vectors for training
 #------------------------------------------------------------------------------
 def loadGloveEmbeddings( vocabulary, filename, vecSize ):
     embeddingVectors = np.random.uniform( -0.25, 0.25,

@@ -3,10 +3,10 @@
 # Filename: eval.py
 
 # Description:
-# [Description]
+# Evaluates a trained text CNN model.
 
 # Usage:
-# python [filename].py [arguments]
+# python eval.py
 #------------------------------------------------------------------------------
 
 import tensorflow as tf
@@ -23,10 +23,10 @@ import sys
 # Compute softmax values for each sets of scores in x.
 #
 # Arguments:
-# [argument] - argument description
+# x - matrix to apply softmax function to for evaluation
 
 # Returns:
-# [Description of return]
+# Softmax evaluation of each value in matrix
 #------------------------------------------------------------------------------
 def softmax( x ):
     if x.ndim == 1:
@@ -36,13 +36,13 @@ def softmax( x ):
     return expX / np.sum( expX, axis=1 ).reshape( ( -1, 1 ) )
 
 #------------------------------------------------------------------------------
-# Compute softmax values for each sets of scores in x.
+# Loads text CNN into a cfg object for referencing in evaluations.
 #
 # Arguments:
-# [argument] - argument description
+# None
 
 # Returns:
-# [Description of return]
+# Configuration
 #------------------------------------------------------------------------------
 def loadConfig():
     with open( "config.yml", 'r' ) as ymlfile:
@@ -50,15 +50,15 @@ def loadConfig():
 
     return cfg
 
-
 #------------------------------------------------------------------------------
-# Parameters
+# Loads the TensorFlow parameters into the flags object for referencing in
+# evaluation.
 #
 # Arguments:
-# [argument] - argument description
+# cfg - object for referencing in evaluations
 
 # Returns:
-# [Description of return]
+# FLAGS, x_test, datasets, x_raw, y_test objects
 #------------------------------------------------------------------------------
 def loadTFParameters(cfg):
     # Data Parameters
@@ -125,10 +125,11 @@ def loadTFParameters(cfg):
 # Evaluation
 #
 # Arguments:
-# [argument] - argument description
+# FLAGS - TensorFlow flags for referencing model
+# x_test - input values to test against model
 
 # Returns:
-# [Description of return]
+# allPredicitions, allProbabilities objects
 #------------------------------------------------------------------------------
 def evaluate( FLAGS, x_test ):
     print( "\nEvaluating...\n" )
@@ -177,10 +178,12 @@ def evaluate( FLAGS, x_test ):
 # Print accuracy if y_test is defined
 #
 # Arguments:
-# [argument] - argument description
+# y_test - all labels for data in test data
+# allPredicitions - all predicted labels for the test data based off the model
+# datasets - dataset to use in classification report
 
 # Returns:
-# [Description of return]
+# None
 #------------------------------------------------------------------------------
 def showYTest( y_test, allPredicitions, datasets ):
     if y_test is not None:
@@ -191,13 +194,16 @@ def showYTest( y_test, allPredicitions, datasets ):
         print( metrics.confusion_matrix( y_test, allPredicitions ) )
 
 #------------------------------------------------------------------------------
-# Save the evaluation to a csv
+# Saves evaluations to a csv file based off model used
 #
 # Arguments:
-# [argument] - argument description
+# x_raw - all training and testing data
+# allPredicitions - all predictions from evaluation
+# allProbabilities - Each probability for a given prediction based off softmax
+# FLAGS -TensorFlow flags for referencing model.
 
 # Returns:
-# [Description of return]
+# CSV file of evaluations
 #------------------------------------------------------------------------------
 def saveEvals( x_raw, allPredicitions, allProbabilities, FLAGS):
     predictionsHumanReadable = np.column_stack( ( np.array( x_raw ),
