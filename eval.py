@@ -113,8 +113,8 @@ def loadTFParameters(cfg):
             y_test = [2, 1]
 
     # Map data into vocabulary
-    #vocabPath = os.path.join( FLAGS.checkpointDir,"..", "vocab" )
-    vocabPath = "/home/cody/cnn-environment/cnn-crime-classification-fork/runs/1512931063/vocab"
+    vocabPath = os.path.join( FLAGS.checkpointDir,"..", "vocab" )
+    #vocabPath = "/home/cody/cnn-environment/cnn-crime-classification-fork/runs/1512931063/vocab"
     vocabProc = learn.preprocessing.VocabularyProcessor.restore( vocabPath )
     x_test = np.array( list( vocabProc.transform( x_raw ) ) )
 
@@ -133,8 +133,8 @@ def loadTFParameters(cfg):
 def evaluate( FLAGS, x_test ):
     print( "\nEvaluating...\n" )
 
-    #checkpointFile = tf.train.latest_checkpoint( FLAGS.checkpointDir )
-    checkpointFile = "/home/cody/cnn-environment/cnn-crime-classification-fork/runs/1512931063/checkpoints/model-103200"
+    checkpointFile = tf.train.latest_checkpoint( FLAGS.checkpointDir )
+    #checkpointFile = "/home/cody/cnn-environment/cnn-crime-classification-fork/runs/1512931063/checkpoints/model-103200"
     graph = tf.Graph()
     with graph.as_default():
         sessionConf = tf.ConfigProto(
