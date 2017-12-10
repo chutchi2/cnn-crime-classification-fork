@@ -15,13 +15,16 @@ import re
 import subprocess
 
 #------------------------------------------------------------------------------
-# [Description]
+# Splits a text file using unix bash commands into a fraction of the original
+# size. Leaves original file intact.
 #
 # Arguments:
-# [argument] - argument description
+# divideByNum - the fraction of the size to divide the file by
+# root - the root directory string of the execution environment
+# fp - the file pointer to the file which will be split
 
 # Returns:
-# [Description of return]
+# None
 #------------------------------------------------------------------------------
 def splitFile( divideByNum, root, fp ):
     bashCommand = "split -n " + str( divideByNum ) + " "  + root + "/" + fp
@@ -36,13 +39,15 @@ def splitFile( divideByNum, root, fp ):
     bashCommand3 = "iconv -f us-ascii -t UTF-8"
 
 #------------------------------------------------------------------------------
-# [Description]
+# Takes a file list and decides to remove the file or to split the file.
 #
 # Arguments:
-# [argument] - argument description
+# root - argument description
+# files - a list of all files to search over
+# fracNum - the fraction of the size to divide the file by
 
 # Returns:
-# [Description of return]
+# None
 #------------------------------------------------------------------------------
 def cleanFolder( root, files, fracNum ):
     for fp in files:
@@ -52,29 +57,46 @@ def cleanFolder( root, files, fracNum ):
             splitFile( fracNum, root, fp )
 
 #------------------------------------------------------------------------------
+# Takes a file as an argument and parses each sentence as a count.
+#
+# Arguments:
+# files - a list of all files to search over
+
+# Returns:
+# Number of sentences in input document
+#------------------------------------------------------------------------------
+def countNumSentences( root, files ):
+    for fp in files:
+        if not ( re.search( '(bak)\w+', fp ) ):
+            file = open( os.path.join( root, fp ), 'r' )
+            fileContents = file.read()
+            pFile = fileContents.split( '.' )
+            print ( len( pFile ) )
+            return len( pFile )
+
+#------------------------------------------------------------------------------
 # [Description]
 #
 # Arguments:
-# [argument] - argument description
+# fracNum - pp
+# dataDir - argument description
 
 # Returns:
 # [Description of return]
 #------------------------------------------------------------------------------
 def run( fracNum, dataDir="data/subdata/" ):
     for root, subdir, files in os.walk( dataDir ):
-        for fp in files:
-            if not ( re.search( '(bak)\w+', fp ) ):
-                os.remove( os.path.join( root, fp ) )
-            else:
-                splitFile( fracNum, root, fp )
+        cleanFolder( root, files, fracNum )
+        countNumSentences( root, files )
 
-    # bashCommand = "rm x*"
-    # process = subprocess.Popen( bashCommand.split(), stdout = subprocess.PIPE )
-    # output, error = process.communicate()
+    bashCommand = "rm xaa xab xac xad xae xaf xag xah xai xaj"
+    process = subprocess.Popen( bashCommand.split(), stdout = subprocess.PIPE )
+    output, error = process.communicate()
+    print output
 
 #------------------------------------------------------------------------------
 def main( argv ):
-   run( argv[1], argv[2] )
+    run( argv[1], argv[2] )
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
