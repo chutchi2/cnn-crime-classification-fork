@@ -13,7 +13,8 @@ import numpy as np
 
 #------------------------------------------------------------------------------
 # A CNN for text classification.
-# Uses an embedding layer, followed by a convolutional, max-pooling and softmax layer.
+# Uses an embedding layer, followed by a convolutional, max-pooling and softmax
+# layer.
 #
 # Arguments:
 # [argument] - argument description

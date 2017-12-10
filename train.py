@@ -32,8 +32,12 @@ import sys
 def loadConfig():
     with open( "config.yml", 'r' ) as ymlfile:
         cfg = yaml.load( ymlfile )
-
     return cfg
+
+#------------------------------------------------------------------------------
+class TrainTextCNN():
+    def __init__(self, init_value):
+        self.cfg = loadConfig()
 
 #------------------------------------------------------------------------------
 # Parameters
@@ -289,7 +293,7 @@ def train( embeddingName, FLAGS, x_train, x_dev, y_train, y_dev, vocabProc , emb
                     devStep( cnn, x_dev, y_dev, sess, globalStep, devSummaryOp, writer=devSummaryWriter )
                     print( "" )
                 if currentStep % FLAGS.checkpointEvery == 0:
-                    path = saver.save( sess, checkpointPrefix, globalStep=currentStep )
+                    path = saver.save( sess, checkpointPrefix, global_step=currentStep )
                     print( "Saved model checkpoint to {}\n".format( path ) )
 
 #------------------------------------------------------------------------------

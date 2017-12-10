@@ -66,7 +66,7 @@ def loadTFParameters(cfg):
     # Eval Parameters
     tf.flags.DEFINE_integer( "batchSize", 64, "Batch Size (default: 64)" )
     tf.flags.DEFINE_string( "checkpointDir", "", "Checkpoint directory from training run" )
-    tf.flags.DEFINE_boolean( "evalTrain", False, "Evaluate on all training data" )
+    tf.flags.DEFINE_boolean( "evalTrain", True, "Evaluate on all training data" )
 
     # Misc Parameters
     tf.flags.DEFINE_boolean( "allow_soft_placement", True, "Allow device soft device placement" )
@@ -94,6 +94,11 @@ def loadTFParameters(cfg):
                                                   categories=cfg["datasets"][datasetName]["categories"],
                                                   shuffle=cfg["datasets"][datasetName]["shuffle"],
                                                   random_state=cfg["datasets"][datasetName]["random_state"] )
+        elif datasetName == "codydata":
+            datasets = dataHelpers.getQuadPolarityDataSet( cfg["datasets"][datasetName]["one_data_file"]["path"],
+                                                            cfg["datasets"][datasetName]["two_data_file"]["path"],
+                                                            cfg["datasets"][datasetName]["three_data_file"]["path"],
+                                                            cfg["datasets"][datasetName]["four_data_file"]["path"] )
         x_raw, y_test = dataHelpers.loadDataLabels( datasets )
         y_test = np.argmax( y_test, axis=1 )
         print( "Total number of test examples: {}".format( len( y_test ) ) )
@@ -109,11 +114,12 @@ def loadTFParameters(cfg):
             y_test = [2, 1]
 
     # Map data into vocabulary
-    vocabPath = os.path.join( FLAGS.checkpointDir, "..", "vocab" )
+    #vocabPath = os.path.join( FLAGS.checkpointDir,"..", "vocab" )
+    vocabPath = "/home/cody/cnn-environment/cnn-crime-classification-fork/runs/1512931063/vocab"
     vocabProc = learn.preprocessing.VocabularyProcessor.restore( vocabPath )
     x_test = np.array( list( vocabProc.transform( x_raw ) ) )
 
-    return FLAGS, x_test, datasets, x_raw
+    return FLAGS, x_test, datasets, x_raw, y_test
 
 #------------------------------------------------------------------------------
 # Evaluation
@@ -127,7 +133,8 @@ def loadTFParameters(cfg):
 def evaluate( FLAGS, x_test ):
     print( "\nEvaluating...\n" )
 
-    checkpointFile = tf.train.latest_checkpoint( FLAGS.checkpointDir )
+    #checkpointFile = tf.train.latest_checkpoint( FLAGS.checkpointDir )
+    checkpointFile = "/home/cody/cnn-environment/cnn-crime-classification-fork/runs/1512931063/checkpoints/model-103200"
     graph = tf.Graph()
     with graph.as_default():
         sessionConf = tf.ConfigProto(
@@ -204,7 +211,7 @@ def saveEvals( x_raw, allPredicitions, allProbabilities, FLAGS):
 #------------------------------------------------------------------------------
 def main( argv ):
     cfg = loadConfig()
-    FLAGS, x_test, datasets, x_raw = loadTFParameters( cfg )
+    FLAGS, x_test, datasets, x_raw, y_test = loadTFParameters( cfg )
     allPredicitions, allProbabilities = evaluate( FLAGS, x_test )
     showYTest( y_test, allPredicitions, datasets )
     saveEvals( x_raw, allPredicitions, allProbabilities , FLAGS )
